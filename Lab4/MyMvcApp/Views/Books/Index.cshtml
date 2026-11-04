@@ -1,0 +1,31 @@
+@model IEnumerable<MyMvcApp.Models.Book>
+
+<h2>Book Directory</h2>
+
+<!-- Search Form targeting the new Search action -->
+<form asp-action="Search" method="get" class="mb-3 d-flex gap-2">
+    <input type="text" name="author" class="form-control w-25" placeholder="Search by author..." />
+    <button type="submit" class="btn btn-secondary">Search</button>
+    <a asp-action="Index" class="btn btn-outline-secondary">Clear</a>
+</form>
+
+<a asp-action="Create" class="btn btn-primary mb-3">Add New Book</a>
+
+<table class="table table-striped">
+    <tr>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Actions</th>
+    </tr>
+    @foreach (var book in Model)
+    {
+        <tr>
+            <td>@book.Title</td>
+            <td>@book.Author</td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@book.Id">Edit</a> |
+                <a asp-action="Delete" asp-route-id="@book.Id" class="text-danger">Delete</a>
+            </td>
+        </tr>
+    }
+</table>

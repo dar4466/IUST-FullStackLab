@@ -1,0 +1,41 @@
+@model MyMvcApp.Models.Book
+
+<h2>Edit Book</h2>
+
+<form asp-action="Edit" method="post">
+    <!-- This summary catches and displays custom database errors from our Controller try-catch blocks -->
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+    
+    <!-- CRUCIAL: The hidden ID field so the server knows which book is being updated -->
+    <input type="hidden" asp-for="Id" />
+    
+    <div class="mb-3">
+        <label asp-for="Title"></label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+   
+    <div class="mb-3">
+        <label asp-for="Author"></label>
+        <input asp-for="Author" class="form-control" />
+        <span asp-validation-for="Author" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="PublishedYear">Published Year</label>
+        <input asp-for="PublishedYear" class="form-control" />
+        <span asp-validation-for="PublishedYear" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Price"></label>
+        <input asp-for="Price" class="form-control" type="number" step="0.01" />
+        <span asp-validation-for="Price" class="text-danger"></span>
+    </div>
+   
+    <button type="submit" class="btn btn-primary">Update</button>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

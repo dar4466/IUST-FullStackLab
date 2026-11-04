@@ -1,0 +1,24 @@
+@model IEnumerable<MyMvcApp.Models.Book>
+
+<h2>Book Directory</h2>
+<a asp-action="Create" class="btn btn-primary mb-3">Add New Book</a>
+
+<table class="table table-striped">
+    <tr>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Actions</th>
+    </tr>
+    @foreach (var book in Model)
+    {
+        <tr>
+            <td>@book.Title</td>
+            <td>@book.Author</td>
+            <td>
+                <!-- Tag Helpers generate the correct URLs automatically -->
+                <a asp-action="Edit" asp-route-id="@book.Id">Edit</a> |
+                <a asp-action="Delete" asp-route-id="@book.Id" class="text-danger">Delete</a>
+            </td>
+        </tr>
+    }
+</table>

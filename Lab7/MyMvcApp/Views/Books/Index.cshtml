@@ -1,0 +1,84 @@
+@model IEnumerable<MyMvcApp.Models.Book>
+@{
+    ViewData["Title"] = "Library Catalog";
+}
+
+<!-- Header & Add Button -->
+<div class="d-flex justify-content-between align-items-center mb-4 mt-2">
+    <h2 class="fw-bold text-dark mb-0">Library Catalog</h2>
+    @if (User.Identity!.IsAuthenticated)
+    {
+        <a asp-action="Create" class="btn btn-primary rounded-pill shadow-sm px-4 fw-semibold d-flex align-items-center gap-2">
+            <i class="bi bi-plus-circle-fill fs-5"></i> Add New Book
+        </a>
+    }
+</div>
+
+<!-- Search Card -->
+<div class="card shadow-sm border-0 mb-4 bg-white rounded-3">
+    <div class="card-body p-4">
+        <form asp-action="Search" method="get" class="row g-2 align-items-center">
+            <div class="col-md-9">
+                <div class="input-group input-group-lg shadow-sm">
+                    <span class="input-group-text bg-light border-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" name="author" class="form-control bg-light border-0 shadow-none" placeholder="Search by Author name..." />
+                </div>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-success btn-lg w-100 shadow-sm fw-bold">Search</button>
+                <a asp-action="Index" class="btn btn-light border btn-lg w-100 text-secondary fw-bold">Clear</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Table Card -->
+<div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+    <table class="table table-hover table-borderless align-middle mb-0">
+        <thead class="bg-dark text-white">
+            <tr>
+                <th class="py-3 px-4">Title</th>
+                <th class="py-3">Author</th>
+                <th class="py-3 text-center px-4">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="bg-white">
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="3" class="text-center text-muted py-5">
+                        <i class="bi bi-journal-x display-4 text-light-subtle mb-3 d-block"></i>
+                        <h5 class="fw-semibold">No books found.</h5>
+                        <p class="mb-0">Try clearing your search or adding a new book to the directory.</p>
+                    </td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var item in Model)
+                {
+                    <tr class="border-bottom">
+                        <td class="py-3 px-4 fw-semibold text-dark">@item.Title</td>
+                        <td class="py-3 text-secondary">@item.Author</td>
+                        <td class="py-3 text-center px-4">
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                <!-- Circular Edit Icon -->
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary rounded-circle shadow-sm p-2" title="Edit">
+                                    <i class="bi bi-pencil-square d-block" style="line-height: 1;"></i>
+                                </a>
+                            }
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <!-- Circular Delete Icon -->
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger rounded-circle shadow-sm p-2 ms-2" title="Delete" onclick="return confirm('Are you sure you want to delete this book?');">
+                                    <i class="bi bi-trash3-fill d-block" style="line-height: 1;"></i>
+                                </a>
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
