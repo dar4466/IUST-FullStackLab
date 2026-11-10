@@ -1,0 +1,137 @@
+@model MyMvcApp.Models.BookDetailsViewModel
+@{
+    ViewData["Title"] = $"{Model.LocalBook.Title} - Live Details";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4 mt-2">
+    <div>
+        <h2 class="fw-bold text-dark mb-0">📖 Book Catalog & Global Insights</h2>
+        <p class="text-muted mb-0">Combining local SQLite storage with live REST APIs</p>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4 fw-semibold">
+        ← Back to Catalog
+    </a>
+</div>
+
+<!-- Graceful Degradation Warning Banner (Only shown if an external API fails/times out) -->
+@if (Model.ApiWarnings.Any())
+{
+    <div class="alert alert-warning shadow-sm rounded-3 mb-4">
+        <h6 class="fw-bold mb-1">⚠️ External API Notice (Graceful Degradation Active)</h6>
+        <ul class="mb-0 ps-3">
+            @foreach (var warning in Model.ApiWarnings)
+            {
+                <li>@warning</li>
+            }
+        </ul>
+    </div>
+}
+
+<div class="card shadow-sm border-0 rounded-3 overflow-hidden bg-white">
+    <div class="card-header bg-dark text-white py-3 px-4 d-flex justify-content-between align-items-center">
+        <h4 class="mb-0 fw-bold">@Model.LocalBook.Title</h4>
+        <span class="badge bg-secondary rounded-pill px-3 py-2">SQLite ID: #@Model.LocalBook.Id</span>
+    </div>
+
+    <div class="card-body p-4">
+        <div class="row g-4 align-items-center">
+            
+            <!-- LEFT COLUMN: Live Book Cover from OpenLibrary API -->
+            <div class="col-md-4 text-center">
+                @if (Model.CoverImageUrl != null)
+                {
+                    <img src="@Model.CoverImageUrl" 
+                         alt="Cover of @Model.LocalBook.Title" 
+                         class="img-fluid rounded-3 shadow" 
+                         style="max-height: 300px; object-fit: cover;" />
+                    <div class="mt-2">
+                        <span class="badge bg-light text-secondary border">Fetched live from OpenLibrary</span>
+                    </div>
+                }
+                else
+                {
+                    <div class="bg-light border rounded-3 p-5 text-muted d-flex flex-column justify-content-center align-items-center" style="min-height: 260px;">
+                        <span class="fs-1 mb-2">📚</span>
+                        <span class="fw-semibold">No Live Cover Found</span>
+                        <small class="text-secondary mt-1">OpenLibrary has no cover image for this title</small>
+                    </div>
+                }
+            </div>
+
+            <!-- RIGHT COLUMN: Local SQLite Data + Currency API + OpenLibrary Metadata -->
+            <div class="col-md-8">
+                
+                <!-- Section 1: Local SQLite Record -->
+                <h5 class="text-primary fw-bold mb-3">🗄️ Local Database Record (SQLite)</h5>
+                <div class="row mb-3">
+                    <div class="col-sm-6 mb-2">
+                        <span class="text-muted d-block small">AUTHOR</span>
+                        <span class="fw-semibold fs-5 text-dark">@Model.LocalBook.Author</span>
+                    </div>
+                    <div class="col-sm-6 mb-2">
+                        <span class="text-muted d-block small">LOCAL CATALOG YEAR</span>
+                        <span class="fw-semibold fs-5 text-dark">@Model.LocalBook.PublishedYear</span>
+                    </div>
+                </div>
+
+                <hr class="my-3" />
+
+                <!-- Section 2: Live Currency Conversion API (USD -> INR) -->
+                <h5 class="text-success fw-bold mb-3">💱 Live Pricing & Currency Conversion API</h5>
+                <div class="row g-3 mb-3">
+                    <div class="col-sm-6">
+                        <div class="p-3 bg-light rounded-3 border">
+                            <span class="text-muted d-block small">BASE PRICE (USD)</span>
+                            <span class="fs-4 fw-bold text-dark">$@Model.LocalBook.Price.ToString("0.00")</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="p-3 bg-success bg-opacity-10 rounded-3 border border-success">
+                            <span class="text-success fw-semibold d-block small">LIVE CONVERTED PRICE (INR)</span>
+                            @if (Model.PriceInInr.HasValue && Model.UsdToInrRate.HasValue)
+                            {
+                                <span class="fs-4 fw-bold text-success">₹@Model.PriceInInr.Value.ToString("N2")</span>
+                                <small class="d-block text-muted mt-1">
+                                    Live Rate: 1 USD = ₹@Model.UsdToInrRate.Value.ToString("0.00")
+                                </small>
+                            }
+                            else
+                            {
+                                <span class="text-muted fst-italic">Conversion unavailable</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-3" />
+
+                <!-- Section 3: Live OpenLibrary Global Metadata -->
+                <h5 class="text-info fw-bold mb-3">🌐 Global Publishing Metadata (OpenLibrary API)</h5>
+                @if (Model.ExternalMetadata != null)
+                {
+                    <div class="row">
+                        <div class="col-sm-6 mb-2">
+                            <span class="text-muted d-block small">FIRST PUBLISHED WORLDWIDE</span>
+                            <span class="fw-semibold text-dark">
+                                @(Model.ExternalMetadata.FirstPublishYear?.ToString() ?? "Not Listed")
+                            </span>
+                        </div>
+                        <div class="col-sm-6 mb-2">
+                            <span class="text-muted d-block small">TOTAL GLOBAL EDITIONS</span>
+                            <span class="badge bg-info text-dark rounded-pill px-3 py-2 fw-bold">
+                                @Model.ExternalMetadata.EditionCount Worldwide Editions
+                            </span>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted fst-italic mb-0">
+                        No matching global publication record found on OpenLibrary for "@Model.LocalBook.Title".
+                    </p>
+                }
+
+            </div>
+        </div>
+    </div>
+</div>
